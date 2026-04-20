@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Controle de Frota – Grupo Agora de Comunicação</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --surface2: #1c1c28;
+      --border: #2a2a3a;
+      --accent: #e8b84b;
+      --accent2: #c94f2c;
+      --text: #f0f0f5;
+      --text-muted: #7a7a9a;
+      --success: #2ecc71;
+      --danger: #e74c3c;
+      --radius: 16px;
+      --shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ───── HEADER ───── */
+    header {
+      background: linear-gradient(135deg, #0d0d14 0%, #1a1a2e 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 18px 24px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+    }
+
+    header h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: clamp(18px, 4vw, 26px);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      line-height: 1.1;
+    }
+
+    header p {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* ───── MAIN SCREEN ───── */
+    #screen-main {
+      padding: 32px 20px 40px;
+    }
+
+    .instructions {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .instructions h2 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .instructions p {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .cars-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .car-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 16px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .car-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.25s;
+      background: radial-gradient(circle at 50% 50%, rgba(232,184,75,0.08), transparent 70%);
+    }
+
+    .car-card:hover::before,
+    .car-card:active::before { opacity: 1; }
+
+    .car-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(232,184,75,0.15);
+    }
+
+    .car-card:active { transform: scale(0.97); }
+
+    .car-logo {
+      width: 100%;
+      max-width: 130px;
+      height: 70px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+    }
+
+    /* Fallback logo badges */
+    .logo-fallback {
+      width: 130px;
+      height: 70px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-align: center;
+      line-height: 1.2;
+      padding: 8px;
+    }
+
+    .logo-record  { background: linear-gradient(135deg, #c0392b, #8e1a0e); color: #fff; }
+    .logo-agorafm { background: linear-gradient(135deg, #1a6fd4, #0d3f7a); color: #fff; }
+    .logo-jovempan{ background: linear-gradient(135deg, #e8b84b, #b8842a); color: #1a1000; }
+    .logo-agoramt { background: linear-gradient(135deg, #27ae60, #145c31); color: #fff; }
+
+    .car-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .car-tag {
+      font-size: 11px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px 10px;
+      color: var(--text-muted);
+    }
+
+    /* ───── MODAL FLOW ───── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 200;
+      align-items: flex-end;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+      padding: 0;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border-radius: 24px 24px 0 0;
+      border-top: 1px solid var(--border);
+      padding: 28px 24px 40px;
+      width: 100%;
+      max-width: 540px;
+      animation: slideUp 0.3s cubic-bezier(.22,.68,0,1.2);
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    .modal-handle {
+      width: 40px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 4px;
+      margin: 0 auto 24px;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .modal-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .modal-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .modal-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Step indicator */
+    .step-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 28px;
+    }
+
+    .step-dot {
+      width: 28px;
+      height: 4px;
+      border-radius: 4px;
+      background: var(--border);
+      transition: background 0.3s;
+    }
+
+    .step-dot.active { background: var(--accent); }
+    .step-dot.done   { background: var(--success); }
+
+    /* Form fields */
+    .field-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .field-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-family: 'Barlow', sans-serif;
+      font-size: 16px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .field-input:focus { border-color: var(--accent); }
+    .field-input::placeholder { color: var(--text-muted); }
+
+    textarea.field-input {
+      resize: none;
+      height: 100px;
+    }
+
+    /* Type buttons (Entrada/Saída) */
+    .type-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .type-btn {
+      border: 2px solid var(--border);
+      background: var(--surface2);
+      border-radius: 14px;
+      padding: 20px 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: 1px;
+    }
+
+    .type-btn .icon { font-size: 28px; }
+
+    .type-btn:hover { border-color: var(--accent); transform: scale(1.02); }
+
+    .type-btn.selected-entrada {
+      border-color: var(--success);
+      background: rgba(46,204,113,0.1);
+      color: var(--success);
+    }
+
+    .type-btn.selected-saida {
+      border-color: var(--danger);
+      background: rgba(231,76,60,0.1);
+      color: var(--danger);
+    }
+
+    /* Camera section */
+    .camera-area {
+      position: relative;
+      background: #000;
+      border-radius: 16px;
+      overflow: hidden;
+      min-height: 240px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px dashed var(--border);
+    }
+
+    #video-preview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 14px;
+      display: none;
+    }
+
+    .camera-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 20px;
+    }
+
+    .camera-placeholder .icon { font-size: 40px; }
+    .camera-placeholder p { font-size: 13px; line-height: 1.4; }
+
+    #captured-preview {
+      width: 100%;
+      border-radius: 14px;
+      display: none;
+    }
+
+    .camera-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    /* Primary/secondary buttons */
+    .btn-primary {
+      background: var(--accent);
+      color: #1a1000;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 24px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex: 1;
+    }
+
+    .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover { border-color: var(--text-muted); }
+
+    .btn-danger {
+      background: rgba(231,76,60,0.15);
+      color: var(--danger);
+      border: 1.5px solid var(--danger);
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    /* Success screen */
+    #screen-success {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+      text-align: center;
+      padding: 40px;
+    }
+
+    #screen-success.active { display: flex; }
+
+    .success-icon {
+      font-size: 72px;
+      animation: popIn 0.5s cubic-bezier(.22,.68,0,1.4);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    .success-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--success);
+    }
+
+    .success-detail {
+      color: var(--text-muted);
+      font-size: 14px;
+      max-width: 280px;
+      line-height: 1.6;
+    }
+
+    /* Loading spinner */
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(26,16,0,0.3);
+      border-top-color: #1a1000;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-msg {
+      font-size: 13px;
+      color: var(--danger);
+      margin-top: 8px;
+      display: none;
+    }
+
+    .field-group { margin-bottom: 20px; }
+
+    /* Upload file fallback (for devices without camera API) */
+    .upload-fallback {
+      margin-top: 10px;
+    }
+
+    .upload-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--surface2);
+      border: 1.5px dashed var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .upload-label:hover { border-color: var(--accent); color: var(--accent); }
+
+    #file-input { display: none; }
+
+    .action-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     HEADER
+══════════════════════════════════ -->
+<header>
+  <h1>Grupo Agora de Comunicação</h1>
+  <p>Controle de Frota</p>
+</header>
+
+<!-- ══════════════════════════════════
+     TELA PRINCIPAL – seleção de veículo
+══════════════════════════════════ -->
+<div id="screen-main">
+  <div class="instructions">
+    <h2>Selecione o Veículo</h2>
+    <p>Toque no logo da emissora correspondente ao carro que irá utilizar</p>
+  </div>
+
+  <div class="cars-grid">
+    <!-- TV CIDADE RECORD -->
+    <div class="car-card" onclick="openFlow('record')">
+      <div class="logo-fallback logo-record">📺 TV CIDADE<br>RECORD</div>
+      <span class="car-name">TV Cidade Record</span>
+      <span class="car-tag">Televisão</span>
+    </div>
+
+    <!-- AGORA FM -->
+    <div class="car-card" onclick="openFlow('agorafm')">
+      <div class="logo-fallback logo-agorafm">📻 AGORA<br>FM</div>
+      <span class="car-name">Agora FM</span>
+      <span class="car-tag">Rádio</span>
+    </div>
+
+    <!-- JOVEM PAN SULMATOGROSSENSE -->
+    <div class="car-card" onclick="openFlow('jovempan')">
+      <div class="logo-fallback logo-jovempan">🎙️ JOVEM PAN<br>SUL-MT</div>
+      <span class="car-name">Jovem Pan Sul-MT</span>
+      <span class="car-tag">Rádio</span>
+    </div>
+
+    <!-- AGORA MT -->
+    <div class="car-card" onclick="openFlow('agoramt')">
+      <div class="logo-fallback logo-agoramt">🌐 AGORA<br>MT</div>
+      <span class="car-name">Agora MT</span>
+      <span class="car-tag">Portal de Notícias</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     MODAL DE REGISTRO
+══════════════════════════════════ -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+
+    <!-- Header dinâmico -->
+    <div class="modal-header">
+      <div class="modal-icon" id="modal-icon"></div>
+      <div>
+        <div class="modal-title" id="modal-title">Registro de Uso</div>
+        <div class="modal-subtitle" id="modal-subtitle"></div>
+      </div>
+    </div>
+
+    <!-- Indicador de etapas -->
+    <div class="step-indicator">
+      <div class="step-dot" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+      <div class="step-dot" id="dot-3"></div>
+      <div class="step-dot" id="dot-4"></div>
+    </div>
+
+    <!-- ── ETAPA 1: Nome do colaborador ── -->
+    <div id="step-1">
+      <div class="field-group">
+        <label class="field-label" for="input-nome">👤 Nome do Colaborador</label>
+        <input class="field-input" type="text" id="input-nome" placeholder="Digite seu nome completo" autocomplete="name" />
+        <div class="error-msg" id="err-nome">Por favor, informe seu nome.</div>
+      </div>
+      <div class="action-row">
+        <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+        <button class="btn-primary" onclick="goStep(2)">Próximo →</button>
+      </div>
+    </div>
+
+    <!-- ── ETAPA 2: Entrada ou Saída ── -->
+    <div id="step-2" style="display:none">
+      <div class="field-group">
+        <label class="field-label">🚗 Tipo de Registro</label>
+        <div class="type-buttons">
+          <button class="type-btn" id="btn-entrada" onclick="selectType('entrada')">
+            <span class="icon">🔑</span> ENTRADA
+          </button>
+          <button class="type-btn" id="btn-saida" onclick="selectType('saida')">
+            <span class="icon">🏁</span> SAÍDA
+          </button>
+        </div>
+        <div class="error-msg" id="err-tipo">Selecione Entrada ou Saída.</div>
+      </div>
+      <div class="action-row">
+        <button class="btn-secondary" onclick="goStep(1)">← Voltar</button>
+        <button class="btn-primary" onclick="goStep(3)">Próximo →</button>
+      </div>
+    </div>
+
+    <!-- ── ETAPA 3: Foto do painel ── -->
+    <div id="step-3" style="display:none">
+      <div class="field-group">
+        <label class="field-label">📸 Foto do Painel (Quilometragem)</label>
+
+        <div class="camera-area" id="camera-area">
+          <video id="video-preview" autoplay playsinline muted></video>
+          <img id="captured-preview" src="" alt="Foto do painel" />
+          <canvas id="canvas" style="display:none"></canvas>
+          <div class="camera-placeholder" id="cam-placeholder">
+            <span class="icon">📷</span>
+            <p>Toque em <strong>Abrir Câmera</strong> para fotografar o painel com a quilometragem</p>
+          </div>
+        </div>
+
+        <div class="camera-buttons">
+          <button class="btn-secondary" id="btn-open-cam" onclick="openCamera()">📷 Abrir Câmera</button>
+          <button class="btn-primary" id="btn-capture" onclick="capturePhoto()" style="display:none">⚡ Fotografar</button>
+          <button class="btn-danger" id="btn-retake" onclick="retakePhoto()" style="display:none">🔄 Tirar Novamente</button>
+        </div>
+
+        <!-- Fallback: upload de arquivo -->
+        <div class="upload-fallback">
+          <label class="upload-label" for="file-input">
+            🗂️ Ou selecione uma foto da galeria
+          </label>
+          <input type="file" id="file-input" accept="image/*" onchange="handleFileUpload(event)" />
+        </div>
+
+        <div class="error-msg" id="err-foto">Tire ou selecione uma foto do painel.</div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn-secondary" onclick="goStep(2)">← Voltar</button>
+        <button class="btn-primary" onclick="goStep(4)">Próximo →</button>
+      </div>
+    </div>
+
+    <!-- ── ETAPA 4: Motivo ── -->
+    <div id="step-4" style="display:none">
+      <div class="field-group">
+        <label class="field-label" for="input-motivo">📋 Motivo da Utilização</label>
+        <textarea class="field-input" id="input-motivo" placeholder="Ex: Cobertura jornalística no centro, reunião com cliente, entrega de material..."></textarea>
+        <div class="error-msg" id="err-motivo">Por favor, informe o motivo da utilização.</div>
+      </div>
+      <div class="action-row">
+        <button class="btn-secondary" onclick="goStep(3)">← Voltar</button>
+        <button class="btn-primary" id="btn-submit" onclick="submitForm()">✅ Registrar</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     TELA DE SUCESSO
+══════════════════════════════════ -->
+<div id="screen-success">
+  <div class="success-icon">✅</div>
+  <div class="success-title">Registrado!</div>
+  <div class="success-detail" id="success-detail"></div>
+  <button class="btn-primary" style="width:200px; margin-top:10px" onclick="resetAll()">Nova Entrada</button>
+</div>
+
+
+<!-- ══════════════════════════════════
+     CONFIGURAÇÃO – edite aqui
+══════════════════════════════════ -->
+<script>
+  // ─── CONFIGURAÇÃO ─────────────────────────────────────────────────────────
+  // Substitua as URLs abaixo pelas suas URLs do Google Apps Script após a implantação
+  const GOOGLE_SCRIPT_URLS = {
+    record:   'https://script.google.com/macros/s/SEU_ID_AQUI_RECORD/exec',
+    agorafm:  'https://script.google.com/macros/s/SEU_ID_AQUI_AGORAFM/exec',
+    jovempan: 'https://script.google.com/macros/s/SEU_ID_AQUI_JOVEMPAN/exec',
+    agoramt:  'https://script.google.com/macros/s/SEU_ID_AQUI_AGORAMT/exec',
+  };
+  // ────────── Use uma única URL (um único script para todas as emissoras)
+  // e passe a emissora como parâmetro.
+  // Alternativamente, use só uma URL global:
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzK-wpo_-h2HID0alI33eLhkE4bWdKP2ohGDrmyUCsE2DQDjmUOv2g2OmkYUu4aV8jx/exec';
+
+  const EMISSORAS = {
+    record:   { nome: 'TV Cidade Record',     cor: '#c0392b', icone: '📺', aba: 'TV_CIDADE_RECORD' },
+    agorafm:  { nome: 'Agora FM',             cor: '#1a6fd4', icone: '📻', aba: 'AGORA_FM' },
+    jovempan: { nome: 'Jovem Pan Sul-MT',     cor: '#e8b84b', icone: '🎙️', aba: 'JOVEM_PAN' },
+    agoramt:  { nome: 'Agora MT',             cor: '#27ae60', icone: '🌐', aba: 'AGORA_MT' },
+  };
+  // ──────────────────────────────────────────────────────────────────────────
+
+  // Estado
+  let currentEmissora = null;
+  let tipoRegistro = null;
+  let capturedImageBase64 = null;
+  let videoStream = null;
+
+  // ── Abrir fluxo ──────────────────────────────────────────────────────────
+  function openFlow(emissora) {
+    currentEmissora = emissora;
+    tipoRegistro = null;
+    capturedImageBase64 = null;
+
+    const em = EMISSORAS[emissora];
+    document.getElementById('modal-icon').textContent = em.icone;
+    document.getElementById('modal-icon').style.background = em.cor + '33';
+    document.getElementById('modal-title').textContent = em.nome;
+    document.getElementById('modal-subtitle').textContent = 'Registrar uso do veículo';
+
+    // Reset campos
+    document.getElementById('input-nome').value = '';
+    document.getElementById('input-motivo').value = '';
+    document.getElementById('btn-entrada').className = 'type-btn';
+    document.getElementById('btn-saida').className = 'type-btn';
+    resetCamera();
+
+    // Esconde erros
+    document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
+
+    goStep(1, true);
+    document.getElementById('modal-overlay').classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('active');
+    stopCamera();
+  }
+
+  // ── Navegação de etapas ───────────────────────────────────────────────────
+  function goStep(n, force) {
+    if (!force) {
+      // Validação antes de avançar
+      const current = getCurrentStep();
+      if (!validateStep(current)) return;
+    }
+
+    for (let i = 1; i <= 4; i++) {
+      document.getElementById(`step-${i}`).style.display = i === n ? 'block' : 'none';
+    }
+
+    // Atualiza dots
+    for (let i = 1; i <= 4; i++) {
+      const dot = document.getElementById(`dot-${i}`);
+      dot.className = 'step-dot' + (i < n ? ' done' : i === n ? ' active' : '');
+    }
+
+    if (n !== 3) stopCamera();
+  }
+
+  function getCurrentStep() {
+    for (let i = 1; i <= 4; i++) {
+      if (document.getElementById(`step-${i}`).style.display !== 'none') return i;
+    }
+    return 1;
+  }
+
+  function validateStep(n) {
+    if (n === 1) {
+      const nome = document.getElementById('input-nome').value.trim();
+      if (!nome) { showErr('err-nome'); return false; }
+      hideErr('err-nome');
+    }
+    if (n === 2) {
+      if (!tipoRegistro) { showErr('err-tipo'); return false; }
+      hideErr('err-tipo');
+    }
+    if (n === 3) {
+      if (!capturedImageBase64) { showErr('err-foto'); return false; }
+      hideErr('err-foto');
+    }
+    return true;
+  }
+
+  function showErr(id) { document.getElementById(id).style.display = 'block'; }
+  function hideErr(id) { document.getElementById(id).style.display = 'none'; }
+
+  // ── Tipo de registro ──────────────────────────────────────────────────────
+  function selectType(tipo) {
+    tipoRegistro = tipo;
+    document.getElementById('btn-entrada').className = 'type-btn' + (tipo === 'entrada' ? ' selected-entrada' : '');
+    document.getElementById('btn-saida').className   = 'type-btn' + (tipo === 'saida'   ? ' selected-saida'   : '');
+    hideErr('err-tipo');
+  }
+
+  // ── Câmera ────────────────────────────────────────────────────────────────
+  async function openCamera() {
+    try {
+      videoStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+      });
+      const video = document.getElementById('video-preview');
+      video.srcObject = videoStream;
+      video.style.display = 'block';
+      document.getElementById('cam-placeholder').style.display = 'none';
+      document.getElementById('captured-preview').style.display = 'none';
+      document.getElementById('btn-open-cam').style.display = 'none';
+      document.getElementById('btn-capture').style.display = 'flex';
+      document.getElementById('btn-retake').style.display = 'none';
+    } catch (err) {
+      alert('Não foi possível acessar a câmera. Use a opção de galeria abaixo ou verifique as permissões do navegador.');
+      console.error(err);
+    }
+  }
+
+  function capturePhoto() {
+    const video = document.getElementById('video-preview');
+    const canvas = document.getElementById('canvas');
+    canvas.width  = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    capturedImageBase64 = canvas.toDataURL('image/jpeg', 0.8);
+
+    const preview = document.getElementById('captured-preview');
+    preview.src = capturedImageBase64;
+    preview.style.display = 'block';
+    video.style.display = 'none';
+
+    stopCamera();
+    document.getElementById('btn-capture').style.display = 'none';
+    document.getElementById('btn-retake').style.display = 'flex';
+    document.getElementById('btn-open-cam').style.display = 'none';
+    hideErr('err-foto');
+  }
+
+  function retakePhoto() {
+    resetCamera();
+    openCamera();
+  }
+
+  function resetCamera() {
+    stopCamera();
+    capturedImageBase64 = null;
+    document.getElementById('video-preview').style.display = 'none';
+    document.getElementById('captured-preview').style.display = 'none';
+    document.getElementById('cam-placeholder').style.display = 'flex';
+    document.getElementById('btn-open-cam').style.display = 'flex';
+    document.getElementById('btn-capture').style.display = 'none';
+    document.getElementById('btn-retake').style.display = 'none';
+    document.getElementById('file-input').value = '';
+  }
+
+  function stopCamera() {
+    if (videoStream) {
+      videoStream.getTracks().forEach(t => t.stop());
+      videoStream = null;
+    }
+  }
+
+  function handleFileUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      capturedImageBase64 = ev.target.result;
+      const preview = document.getElementById('captured-preview');
+      preview.src = capturedImageBase64;
+      preview.style.display = 'block';
+      document.getElementById('cam-placeholder').style.display = 'none';
+      document.getElementById('btn-retake').style.display = 'flex';
+      document.getElementById('btn-open-cam').style.display = 'none';
+      hideErr('err-foto');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // ── Envio do formulário ───────────────────────────────────────────────────
+  async function submitForm() {
+    if (!validateStep(4)) {
+      const motivo = document.getElementById('input-motivo').value.trim();
+      if (!motivo) { showErr('err-motivo'); return; }
+    }
+
+    const motivo = document.getElementById('input-motivo').value.trim();
+    if (!motivo) { showErr('err-motivo'); return; }
+    hideErr('err-motivo');
+
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Enviando...';
+
+    const now = new Date();
+    const data = {
+      emissora: EMISSORAS[currentEmissora].aba,
+      data: now.toLocaleDateString('pt-BR'),
+      hora: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+      colaborador: document.getElementById('input-nome').value.trim(),
+      tipo: tipoRegistro === 'entrada' ? 'ENTRADA' : 'SAÍDA',
+      foto: capturedImageBase64,
+      motivo: motivo,
+    };
+
+    try {
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      // no-cors não retorna resposta — assumimos sucesso
+      showSuccess(data);
+    } catch (err) {
+      alert('Erro ao enviar. Verifique sua conexão e tente novamente.');
+      btn.disabled = false;
+      btn.innerHTML = '✅ Registrar';
+    }
+  }
+
+  function showSuccess(data) {
+    closeModal();
+    document.getElementById('success-detail').textContent =
+      `${data.tipo} registrada para ${data.colaborador} — ${EMISSORAS[currentEmissora].nome} — ${data.data} às ${data.hora}`;
+    document.getElementById('screen-success').classList.add('active');
+  }
+
+  function resetAll() {
+    document.getElementById('screen-success').classList.remove('active');
+    currentEmissora = null;
+    tipoRegistro = null;
+    capturedImageBase64 = null;
+  }
+</script>
+</body>
+</html>
