@@ -89,7 +89,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 16px;
-      max-width: 600px;
+      max-width: 480px;
       margin: 0 auto;
     }
 
@@ -97,15 +97,18 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 24px 16px;
       cursor: pointer;
       transition: all 0.25s ease;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 14px;
+      justify-content: center;
+      gap: 12px;
       position: relative;
       overflow: hidden;
+      /* Quadrado perfeito via aspect-ratio */
+      aspect-ratio: 1 / 1;
+      padding: 16px;
     }
 
     .car-card::before {
@@ -129,28 +132,29 @@
     .car-card:active { transform: scale(0.97); }
 
     .car-logo {
+      /* Tamanho exato para o arquivo de logo: 400 x 400 px (quadrado) */
       width: 100%;
-      max-width: 130px;
-      height: 70px;
+      max-width: 120px;
+      height: 120px;
       object-fit: contain;
       filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
     }
 
-    /* Fallback logo badges */
+    /* Fallback logo badges — mesmo tamanho 120×120 */
     .logo-fallback {
-      width: 130px;
-      height: 70px;
-      border-radius: 10px;
+      width: 120px;
+      height: 120px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: 'Barlow Condensed', sans-serif;
       font-weight: 900;
-      font-size: 13px;
+      font-size: 14px;
       letter-spacing: 1px;
       text-align: center;
-      line-height: 1.2;
-      padding: 8px;
+      line-height: 1.3;
+      padding: 12px;
     }
 
     .logo-record  { background: linear-gradient(135deg, #c0392b, #8e1a0e); color: #fff; }
@@ -346,7 +350,9 @@
       background: #000;
       border-radius: 16px;
       overflow: hidden;
-      min-height: 240px;
+      /* Quadrado perfeito */
+      width: 100%;
+      aspect-ratio: 1 / 1;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -354,6 +360,8 @@
     }
 
     #video-preview {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -375,15 +383,55 @@
     .camera-placeholder p { font-size: 13px; line-height: 1.4; }
 
     #captured-preview {
+      position: absolute;
+      inset: 0;
       width: 100%;
+      height: 100%;
+      object-fit: cover;
       border-radius: 14px;
       display: none;
     }
 
+    /* Botão de captura flutuante sobre a câmera */
+    #btn-capture {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: #fff;
+      border: 4px solid rgba(255,255,255,0.4);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      font-size: 26px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      flex: none;
+    }
+
+    #btn-capture:active { transform: translateX(-50%) scale(0.92); }
+
+    /* Botão retake flutuante */
+    #btn-retake {
+      position: absolute;
+      bottom: 14px;
+      right: 14px;
+      z-index: 10;
+      border-radius: 20px;
+      padding: 8px 14px;
+      font-size: 13px;
+      display: none;
+    }
+
     .camera-buttons {
+      margin-top: 12px;
       display: flex;
       gap: 10px;
-      margin-top: 12px;
     }
 
     /* Primary/secondary buttons */
@@ -599,11 +647,28 @@
     </div>
 
     <!-- Indicador de etapas -->
-    <div class="step-indicator">
-      <div class="step-dot" id="dot-1"></div>
-      <div class="step-dot" id="dot-2"></div>
-      <div class="step-dot" id="dot-3"></div>
-      <div class="step-dot" id="dot-4"></div>
+    <div class="step-indicator" id="step-indicator">
+      <!-- dots gerados pelo JS -->
+    </div>
+
+    <!-- ── ETAPA 0: Seleção do carro (apenas TV Cidade Record) ── -->
+    <div id="step-0" style="display:none">
+      <div class="field-group">
+        <label class="field-label">🚗 Selecione o Veículo</label>
+        <div class="type-buttons">
+          <button class="type-btn" id="btn-carro-argo" onclick="selectCarro('ARGO')">
+            <span class="icon">🚙</span> ARGO
+          </button>
+          <button class="type-btn" id="btn-carro-kwid" onclick="selectCarro('KWID')">
+            <span class="icon">🚗</span> KWID
+          </button>
+        </div>
+        <div class="error-msg" id="err-carro">Selecione um veículo.</div>
+      </div>
+      <div class="action-row">
+        <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+        <button class="btn-primary" onclick="goStep(1)">Próximo →</button>
+      </div>
     </div>
 
     <!-- ── ETAPA 1: Nome do colaborador ── -->
@@ -614,7 +679,7 @@
         <div class="error-msg" id="err-nome">Por favor, informe seu nome.</div>
       </div>
       <div class="action-row">
-        <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+        <button class="btn-secondary" onclick="currentEmissora==='record' ? goStep(0) : closeModal()">← Voltar</button>
         <button class="btn-primary" onclick="goStep(2)">Próximo →</button>
       </div>
     </div>
@@ -652,12 +717,14 @@
             <span class="icon">📷</span>
             <p>Toque em <strong>Abrir Câmera</strong> para fotografar o painel com a quilometragem</p>
           </div>
+          <!-- Botão de captura flutuante DENTRO da câmera -->
+          <button id="btn-capture" onclick="capturePhoto()" title="Fotografar">📸</button>
+          <!-- Botão retake flutuante DENTRO da câmera (sobre a foto) -->
+          <button class="btn-danger" id="btn-retake" onclick="retakePhoto()">🔄 Tirar novamente</button>
         </div>
 
         <div class="camera-buttons">
-          <button class="btn-secondary" id="btn-open-cam" onclick="openCamera()">📷 Abrir Câmera</button>
-          <button class="btn-primary" id="btn-capture" onclick="capturePhoto()" style="display:none">⚡ Fotografar</button>
-          <button class="btn-danger" id="btn-retake" onclick="retakePhoto()" style="display:none">🔄 Tirar Novamente</button>
+          <button class="btn-secondary" id="btn-open-cam" onclick="openCamera()" style="flex:1">📷 Abrir Câmera</button>
         </div>
 
         <!-- Fallback: upload de arquivo -->
@@ -719,7 +786,7 @@
   // ────────── Use uma única URL (um único script para todas as emissoras)
   // e passe a emissora como parâmetro.
   // Alternativamente, use só uma URL global:
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzK-wpo_-h2HID0alI33eLhkE4bWdKP2ohGDrmyUCsE2DQDjmUOv2g2OmkYUu4aV8jx/exec';
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/SEU_ID_AQUI/exec';
 
   const EMISSORAS = {
     record:   { nome: 'TV Cidade Record',     cor: '#c0392b', icone: '📺', aba: 'TV_CIDADE_RECORD' },
@@ -732,13 +799,33 @@
   // Estado
   let currentEmissora = null;
   let tipoRegistro = null;
+  let carroSelecionado = null;   // só para TV Cidade Record
   let capturedImageBase64 = null;
   let videoStream = null;
+
+  // Quais steps existem por emissora
+  // Record: 0(carro) → 1(nome) → 2(tipo) → 3(foto) → 4(motivo)
+  // Demais:           1(nome) → 2(tipo) → 3(foto) → 4(motivo)
+  function getSteps() {
+    return currentEmissora === 'record' ? [0,1,2,3,4] : [1,2,3,4];
+  }
+
+  function renderDots(activeStep) {
+    const steps = getSteps();
+    const container = document.getElementById('step-indicator');
+    container.innerHTML = '';
+    steps.forEach(s => {
+      const d = document.createElement('div');
+      d.className = 'step-dot' + (s < activeStep ? ' done' : s === activeStep ? ' active' : '');
+      container.appendChild(d);
+    });
+  }
 
   // ── Abrir fluxo ──────────────────────────────────────────────────────────
   function openFlow(emissora) {
     currentEmissora = emissora;
     tipoRegistro = null;
+    carroSelecionado = null;
     capturedImageBase64 = null;
 
     const em = EMISSORAS[emissora];
@@ -752,12 +839,15 @@
     document.getElementById('input-motivo').value = '';
     document.getElementById('btn-entrada').className = 'type-btn';
     document.getElementById('btn-saida').className = 'type-btn';
+    document.getElementById('btn-carro-argo').className = 'type-btn';
+    document.getElementById('btn-carro-kwid').className = 'type-btn';
     resetCamera();
 
     // Esconde erros
     document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
 
-    goStep(1, true);
+    const firstStep = emissora === 'record' ? 0 : 1;
+    goStep(firstStep, true);
     document.getElementById('modal-overlay').classList.add('active');
   }
 
@@ -769,32 +859,33 @@
   // ── Navegação de etapas ───────────────────────────────────────────────────
   function goStep(n, force) {
     if (!force) {
-      // Validação antes de avançar
       const current = getCurrentStep();
       if (!validateStep(current)) return;
     }
 
-    for (let i = 1; i <= 4; i++) {
-      document.getElementById(`step-${i}`).style.display = i === n ? 'block' : 'none';
+    // Mostrar apenas o step correto (0 a 4)
+    for (let i = 0; i <= 4; i++) {
+      const el = document.getElementById(`step-${i}`);
+      if (el) el.style.display = i === n ? 'block' : 'none';
     }
 
-    // Atualiza dots
-    for (let i = 1; i <= 4; i++) {
-      const dot = document.getElementById(`dot-${i}`);
-      dot.className = 'step-dot' + (i < n ? ' done' : i === n ? ' active' : '');
-    }
-
+    renderDots(n);
     if (n !== 3) stopCamera();
   }
 
   function getCurrentStep() {
-    for (let i = 1; i <= 4; i++) {
-      if (document.getElementById(`step-${i}`).style.display !== 'none') return i;
+    for (let i = 0; i <= 4; i++) {
+      const el = document.getElementById(`step-${i}`);
+      if (el && el.style.display !== 'none') return i;
     }
     return 1;
   }
 
   function validateStep(n) {
+    if (n === 0) {
+      if (!carroSelecionado) { showErr('err-carro'); return false; }
+      hideErr('err-carro');
+    }
     if (n === 1) {
       const nome = document.getElementById('input-nome').value.trim();
       if (!nome) { showErr('err-nome'); return false; }
@@ -813,6 +904,14 @@
 
   function showErr(id) { document.getElementById(id).style.display = 'block'; }
   function hideErr(id) { document.getElementById(id).style.display = 'none'; }
+
+  // ── Seleção de carro (Record) ─────────────────────────────────────────────
+  function selectCarro(carro) {
+    carroSelecionado = carro;
+    document.getElementById('btn-carro-argo').className = 'type-btn' + (carro === 'ARGO' ? ' selected-entrada' : '');
+    document.getElementById('btn-carro-kwid').className = 'type-btn' + (carro === 'KWID' ? ' selected-entrada' : '');
+    hideErr('err-carro');
+  }
 
   // ── Tipo de registro ──────────────────────────────────────────────────────
   function selectType(tipo) {
@@ -925,6 +1024,7 @@
       hora: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
       colaborador: document.getElementById('input-nome').value.trim(),
       tipo: tipoRegistro === 'entrada' ? 'ENTRADA' : 'SAÍDA',
+      carro: carroSelecionado || '',   // ARGO, KWID ou vazio para as demais
       foto: capturedImageBase64,
       motivo: motivo,
     };
@@ -947,8 +1047,9 @@
 
   function showSuccess(data) {
     closeModal();
+    const carroInfo = data.carro ? ` | ${data.carro}` : '';
     document.getElementById('success-detail').textContent =
-      `${data.tipo} registrada para ${data.colaborador} — ${EMISSORAS[currentEmissora].nome} — ${data.data} às ${data.hora}`;
+      `${data.tipo} registrada para ${data.colaborador} — ${EMISSORAS[currentEmissora].nome}${carroInfo} — ${data.data} às ${data.hora}`;
     document.getElementById('screen-success').classList.add('active');
   }
 
