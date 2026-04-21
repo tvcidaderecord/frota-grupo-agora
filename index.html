@@ -106,7 +106,6 @@
       gap: 12px;
       position: relative;
       overflow: hidden;
-      /* Quadrado perfeito via aspect-ratio */
       aspect-ratio: 1 / 1;
       padding: 16px;
     }
@@ -132,7 +131,6 @@
     .car-card:active { transform: scale(0.97); }
 
     .car-logo {
-      /* Tamanho exato para o arquivo de logo: 400 x 400 px (quadrado) */
       width: 100%;
       max-width: 120px;
       height: 120px;
@@ -140,7 +138,6 @@
       filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
     }
 
-    /* Fallback logo badges — mesmo tamanho 120×120 */
     .logo-fallback {
       width: 120px;
       height: 120px;
@@ -157,10 +154,10 @@
       padding: 12px;
     }
 
-    .logo-record  { background: linear-gradient(135deg, #c0392b, #8e1a0e); color: #fff; }
-    .logo-agorafm { background: linear-gradient(135deg, #1a6fd4, #0d3f7a); color: #fff; }
-    .logo-jovempan{ background: linear-gradient(135deg, #e8b84b, #b8842a); color: #1a1000; }
-    .logo-agoramt { background: linear-gradient(135deg, #27ae60, #145c31); color: #fff; }
+    .logo-record   { background: linear-gradient(135deg, #c0392b, #8e1a0e); color: #fff; }
+    .logo-agorafm  { background: linear-gradient(135deg, #1a6fd4, #0d3f7a); color: #fff; }
+    .logo-jovempan { background: linear-gradient(135deg, #e8b84b, #b8842a); color: #1a1000; }
+    .logo-agoramt  { background: linear-gradient(135deg, #27ae60, #145c31); color: #fff; }
 
     .car-name {
       font-family: 'Barlow Condensed', sans-serif;
@@ -303,7 +300,7 @@
       height: 100px;
     }
 
-    /* Type buttons (Entrada/Saída) */
+    /* Type buttons */
     .type-buttons {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -329,7 +326,6 @@
     }
 
     .type-btn .icon { font-size: 28px; }
-
     .type-btn:hover { border-color: var(--accent); transform: scale(1.02); }
 
     .type-btn.selected-entrada {
@@ -350,7 +346,6 @@
       background: #000;
       border-radius: 16px;
       overflow: hidden;
-      /* Quadrado perfeito */
       width: 100%;
       aspect-ratio: 1 / 1;
       display: flex;
@@ -392,7 +387,6 @@
       display: none;
     }
 
-    /* Botão de captura flutuante sobre a câmera */
     #btn-capture {
       position: absolute;
       bottom: 14px;
@@ -416,7 +410,6 @@
 
     #btn-capture:active { transform: translateX(-50%) scale(0.92); }
 
-    /* Botão retake flutuante */
     #btn-retake {
       position: absolute;
       bottom: 14px;
@@ -434,7 +427,7 @@
       gap: 10px;
     }
 
-    /* Primary/secondary buttons */
+    /* Buttons */
     .btn-primary {
       background: var(--accent);
       color: #1a1000;
@@ -525,7 +518,7 @@
       line-height: 1.6;
     }
 
-    /* Loading spinner */
+    /* Spinner */
     .spinner {
       display: inline-block;
       width: 18px;
@@ -547,31 +540,15 @@
       display: none;
     }
 
+    /* Aviso nome salvo */
+    .nome-salvo-aviso {
+      display: none;
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--success);
+    }
+
     .field-group { margin-bottom: 20px; }
-
-    /* Upload file fallback (for devices without camera API) */
-    .upload-fallback {
-      margin-top: 10px;
-    }
-
-    .upload-label {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      background: var(--surface2);
-      border: 1.5px dashed var(--border);
-      border-radius: 12px;
-      padding: 14px;
-      cursor: pointer;
-      color: var(--text-muted);
-      font-size: 14px;
-      transition: border-color 0.2s;
-    }
-
-    .upload-label:hover { border-color: var(--accent); color: var(--accent); }
-
-    #file-input { display: none; }
 
     .action-row {
       display: flex;
@@ -647,9 +624,7 @@
     </div>
 
     <!-- Indicador de etapas -->
-    <div class="step-indicator" id="step-indicator">
-      <!-- dots gerados pelo JS -->
-    </div>
+    <div class="step-indicator" id="step-indicator"></div>
 
     <!-- ── ETAPA 0: Seleção do carro (apenas TV Cidade Record) ── -->
     <div id="step-0" style="display:none">
@@ -676,6 +651,9 @@
       <div class="field-group">
         <label class="field-label" for="input-nome">👤 Nome do Colaborador</label>
         <input class="field-input" type="text" id="input-nome" placeholder="Digite seu nome completo" autocomplete="name" />
+        <div class="nome-salvo-aviso" id="nome-salvo-aviso">
+          ✅ Nome salvo neste aparelho — edite acima se necessário
+        </div>
         <div class="error-msg" id="err-nome">Por favor, informe seu nome.</div>
       </div>
       <div class="action-row">
@@ -717,9 +695,7 @@
             <span class="icon">📷</span>
             <p>Toque em <strong>Abrir Câmera</strong> para fotografar o painel com a quilometragem</p>
           </div>
-          <!-- Botão de captura flutuante DENTRO da câmera -->
           <button id="btn-capture" onclick="capturePhoto()" title="Fotografar">📸</button>
-          <!-- Botão retake flutuante DENTRO da câmera (sobre a foto) -->
           <button class="btn-danger" id="btn-retake" onclick="retakePhoto()">🔄 Tirar novamente</button>
         </div>
 
@@ -727,15 +703,7 @@
           <button class="btn-secondary" id="btn-open-cam" onclick="openCamera()" style="flex:1">📷 Abrir Câmera</button>
         </div>
 
-        <!-- Fallback: upload de arquivo -->
-        <div class="upload-fallback">
-          <label class="upload-label" for="file-input">
-            🗂️ Ou selecione uma foto da galeria
-          </label>
-          <input type="file" id="file-input" accept="image/*" onchange="handleFileUpload(event)" />
-        </div>
-
-        <div class="error-msg" id="err-foto">Tire ou selecione uma foto do painel.</div>
+        <div class="error-msg" id="err-foto">Tire uma foto do painel.</div>
       </div>
 
       <div class="action-row">
@@ -767,7 +735,7 @@
   <div class="success-icon">✅</div>
   <div class="success-title">Registrado!</div>
   <div class="success-detail" id="success-detail"></div>
-  <button class="btn-primary" style="width:200px; margin-top:10px" onclick="resetAll()">Nova Entrada</button>
+  <button class="btn-primary" style="width:220px; margin-top:10px" onclick="resetAll()">Fazer Novo Registro</button>
 </div>
 
 
@@ -776,36 +744,25 @@
 ══════════════════════════════════ -->
 <script>
   // ─── CONFIGURAÇÃO ─────────────────────────────────────────────────────────
-  // Substitua as URLs abaixo pelas suas URLs do Google Apps Script após a implantação
-  const GOOGLE_SCRIPT_URLS = {
-    record:   'https://script.google.com/macros/s/SEU_ID_AQUI_RECORD/exec',
-    agorafm:  'https://script.google.com/macros/s/SEU_ID_AQUI_AGORAFM/exec',
-    jovempan: 'https://script.google.com/macros/s/SEU_ID_AQUI_JOVEMPAN/exec',
-    agoramt:  'https://script.google.com/macros/s/SEU_ID_AQUI_AGORAMT/exec',
-  };
-  // ────────── Use uma única URL (um único script para todas as emissoras)
-  // e passe a emissora como parâmetro.
-  // Alternativamente, use só uma URL global:
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzK-wpo_-h2HID0alI33eLhkE4bWdKP2ohGDrmyUCsE2DQDjmUOv2g2OmkYUu4aV8jx/exec';
 
   const EMISSORAS = {
-    record:   { nome: 'TV Cidade Record',     cor: '#c0392b', icone: '📺', aba: 'TV_CIDADE_RECORD' },
-    agorafm:  { nome: 'Agora FM',             cor: '#1a6fd4', icone: '📻', aba: 'AGORA_FM' },
-    jovempan: { nome: 'Jovem Pan Sul-MT',     cor: '#e8b84b', icone: '🎙️', aba: 'JOVEM_PAN' },
-    agoramt:  { nome: 'Agora MT',             cor: '#27ae60', icone: '🌐', aba: 'AGORA_MT' },
+    record:   { nome: 'TV Cidade Record',  cor: '#c0392b', icone: '📺', aba: 'TV_CIDADE_RECORD' },
+    agorafm:  { nome: 'Agora FM',          cor: '#1a6fd4', icone: '📻', aba: 'AGORA_FM' },
+    jovempan: { nome: 'Jovem Pan Sul-MT',  cor: '#e8b84b', icone: '🎙️', aba: 'JOVEM_PAN' },
+    agoramt:  { nome: 'Agora MT',          cor: '#27ae60', icone: '🌐', aba: 'AGORA_MT' },
   };
   // ──────────────────────────────────────────────────────────────────────────
 
   // Estado
-  let currentEmissora = null;
-  let tipoRegistro = null;
-  let carroSelecionado = null;   // só para TV Cidade Record
+  let currentEmissora   = null;
+  let tipoRegistro      = null;
+  let carroSelecionado  = null;
   let capturedImageBase64 = null;
-  let videoStream = null;
+  let videoStream       = null;
 
-  // Quais steps existem por emissora
-  // Record: 0(carro) → 1(nome) → 2(tipo) → 3(foto) → 4(motivo)
-  // Demais:           1(nome) → 2(tipo) → 3(foto) → 4(motivo)
+  // Record: 0(carro)→1(nome)→2(tipo)→3(foto)→4(motivo)
+  // Demais:          1(nome)→2(tipo)→3(foto)→4(motivo)
   function getSteps() {
     return currentEmissora === 'record' ? [0,1,2,3,4] : [1,2,3,4];
   }
@@ -823,31 +780,32 @@
 
   // ── Abrir fluxo ──────────────────────────────────────────────────────────
   function openFlow(emissora) {
-    currentEmissora = emissora;
-    tipoRegistro = null;
-    carroSelecionado = null;
+    currentEmissora     = emissora;
+    tipoRegistro        = null;
+    carroSelecionado    = null;
     capturedImageBase64 = null;
 
     const em = EMISSORAS[emissora];
-    document.getElementById('modal-icon').textContent = em.icone;
-    document.getElementById('modal-icon').style.background = em.cor + '33';
-    document.getElementById('modal-title').textContent = em.nome;
-    document.getElementById('modal-subtitle').textContent = 'Registrar uso do veículo';
+    document.getElementById('modal-icon').textContent        = em.icone;
+    document.getElementById('modal-icon').style.background   = em.cor + '33';
+    document.getElementById('modal-title').textContent       = em.nome;
+    document.getElementById('modal-subtitle').textContent    = 'Registrar uso do veículo';
 
-    // Reset campos
-    document.getElementById('input-nome').value = '';
-    document.getElementById('input-motivo').value = '';
-    document.getElementById('btn-entrada').className = 'type-btn';
-    document.getElementById('btn-saida').className = 'type-btn';
-    document.getElementById('btn-carro-argo').className = 'type-btn';
-    document.getElementById('btn-carro-kwid').className = 'type-btn';
+    // Pré-preenche nome salvo no aparelho
+    const nomeSalvo = localStorage.getItem('frota_nome_colaborador') || '';
+    document.getElementById('input-nome').value              = nomeSalvo;
+    document.getElementById('nome-salvo-aviso').style.display = nomeSalvo ? 'block' : 'none';
+
+    document.getElementById('input-motivo').value            = '';
+    document.getElementById('btn-entrada').className         = 'type-btn';
+    document.getElementById('btn-saida').className           = 'type-btn';
+    document.getElementById('btn-carro-argo').className      = 'type-btn';
+    document.getElementById('btn-carro-kwid').className      = 'type-btn';
     resetCamera();
 
-    // Esconde erros
     document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
 
-    const firstStep = emissora === 'record' ? 0 : 1;
-    goStep(firstStep, true);
+    goStep(emissora === 'record' ? 0 : 1, true);
     document.getElementById('modal-overlay').classList.add('active');
   }
 
@@ -862,13 +820,10 @@
       const current = getCurrentStep();
       if (!validateStep(current)) return;
     }
-
-    // Mostrar apenas o step correto (0 a 4)
     for (let i = 0; i <= 4; i++) {
       const el = document.getElementById(`step-${i}`);
       if (el) el.style.display = i === n ? 'block' : 'none';
     }
-
     renderDots(n);
     if (n !== 3) stopCamera();
   }
@@ -930,19 +885,19 @@
       const video = document.getElementById('video-preview');
       video.srcObject = videoStream;
       video.style.display = 'block';
-      document.getElementById('cam-placeholder').style.display = 'none';
+      document.getElementById('cam-placeholder').style.display  = 'none';
       document.getElementById('captured-preview').style.display = 'none';
-      document.getElementById('btn-open-cam').style.display = 'none';
-      document.getElementById('btn-capture').style.display = 'flex';
-      document.getElementById('btn-retake').style.display = 'none';
+      document.getElementById('btn-open-cam').style.display     = 'none';
+      document.getElementById('btn-capture').style.display      = 'flex';
+      document.getElementById('btn-retake').style.display       = 'none';
     } catch (err) {
-      alert('Não foi possível acessar a câmera. Use a opção de galeria abaixo ou verifique as permissões do navegador.');
+      alert('Não foi possível acessar a câmera. Verifique as permissões do navegador e tente novamente.');
       console.error(err);
     }
   }
 
   function capturePhoto() {
-    const video = document.getElementById('video-preview');
+    const video  = document.getElementById('video-preview');
     const canvas = document.getElementById('canvas');
     canvas.width  = video.videoWidth;
     canvas.height = video.videoHeight;
@@ -950,32 +905,28 @@
     capturedImageBase64 = canvas.toDataURL('image/jpeg', 0.8);
 
     const preview = document.getElementById('captured-preview');
-    preview.src = capturedImageBase64;
-    preview.style.display = 'block';
-    video.style.display = 'none';
+    preview.src            = capturedImageBase64;
+    preview.style.display  = 'block';
+    video.style.display    = 'none';
 
     stopCamera();
-    document.getElementById('btn-capture').style.display = 'none';
-    document.getElementById('btn-retake').style.display = 'flex';
+    document.getElementById('btn-capture').style.display  = 'none';
+    document.getElementById('btn-retake').style.display   = 'flex';
     document.getElementById('btn-open-cam').style.display = 'none';
     hideErr('err-foto');
   }
 
-  function retakePhoto() {
-    resetCamera();
-    openCamera();
-  }
+  function retakePhoto() { resetCamera(); openCamera(); }
 
   function resetCamera() {
     stopCamera();
     capturedImageBase64 = null;
-    document.getElementById('video-preview').style.display = 'none';
+    document.getElementById('video-preview').style.display    = 'none';
     document.getElementById('captured-preview').style.display = 'none';
-    document.getElementById('cam-placeholder').style.display = 'flex';
-    document.getElementById('btn-open-cam').style.display = 'flex';
-    document.getElementById('btn-capture').style.display = 'none';
-    document.getElementById('btn-retake').style.display = 'none';
-    document.getElementById('file-input').value = '';
+    document.getElementById('cam-placeholder').style.display  = 'flex';
+    document.getElementById('btn-open-cam').style.display     = 'flex';
+    document.getElementById('btn-capture').style.display      = 'none';
+    document.getElementById('btn-retake').style.display       = 'none';
   }
 
   function stopCamera() {
@@ -985,78 +936,59 @@
     }
   }
 
-  function handleFileUpload(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      capturedImageBase64 = ev.target.result;
-      const preview = document.getElementById('captured-preview');
-      preview.src = capturedImageBase64;
-      preview.style.display = 'block';
-      document.getElementById('cam-placeholder').style.display = 'none';
-      document.getElementById('btn-retake').style.display = 'flex';
-      document.getElementById('btn-open-cam').style.display = 'none';
-      hideErr('err-foto');
-    };
-    reader.readAsDataURL(file);
-  }
-
   // ── Envio do formulário ───────────────────────────────────────────────────
   async function submitForm() {
-    if (!validateStep(4)) {
-      const motivo = document.getElementById('input-motivo').value.trim();
-      if (!motivo) { showErr('err-motivo'); return; }
-    }
-
     const motivo = document.getElementById('input-motivo').value.trim();
     if (!motivo) { showErr('err-motivo'); return; }
     hideErr('err-motivo');
+
+    // Salva nome no aparelho para a próxima vez
+    const nomeColaborador = document.getElementById('input-nome').value.trim();
+    localStorage.setItem('frota_nome_colaborador', nomeColaborador);
 
     const btn = document.getElementById('btn-submit');
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Enviando...';
 
     const now = new Date();
-    const data = {
-      emissora: EMISSORAS[currentEmissora].aba,
-      data: now.toLocaleDateString('pt-BR'),
-      hora: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-      colaborador: document.getElementById('input-nome').value.trim(),
-      tipo: tipoRegistro === 'entrada' ? 'ENTRADA' : 'SAÍDA',
-      carro: carroSelecionado || '',   // ARGO, KWID ou vazio para as demais
-      foto: capturedImageBase64,
-      motivo: motivo,
+    const payload = {
+      emissora:    EMISSORAS[currentEmissora].aba,
+      data:        now.toLocaleDateString('pt-BR'),
+      hora:        now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+      colaborador: nomeColaborador,
+      tipo:        tipoRegistro === 'entrada' ? 'ENTRADA' : 'SAÍDA',
+      carro:       carroSelecionado || '',
+      foto:        capturedImageBase64,
+      motivo:      motivo,
     };
 
     try {
       await fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
+        method:  'POST',
+        mode:    'no-cors',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body:    JSON.stringify(payload),
       });
-      // no-cors não retorna resposta — assumimos sucesso
-      showSuccess(data);
+      showSuccess(payload);
     } catch (err) {
       alert('Erro ao enviar. Verifique sua conexão e tente novamente.');
-      btn.disabled = false;
+      btn.disabled  = false;
       btn.innerHTML = '✅ Registrar';
     }
   }
 
-  function showSuccess(data) {
+  function showSuccess(payload) {
     closeModal();
-    const carroInfo = data.carro ? ` | ${data.carro}` : '';
+    const carroInfo = payload.carro ? ` | ${payload.carro}` : '';
     document.getElementById('success-detail').textContent =
-      `${data.tipo} registrada para ${data.colaborador} — ${EMISSORAS[currentEmissora].nome}${carroInfo} — ${data.data} às ${data.hora}`;
+      `${payload.tipo} registrada para ${payload.colaborador} — ${EMISSORAS[currentEmissora].nome}${carroInfo} — ${payload.data} às ${payload.hora}`;
     document.getElementById('screen-success').classList.add('active');
   }
 
   function resetAll() {
     document.getElementById('screen-success').classList.remove('active');
-    currentEmissora = null;
-    tipoRegistro = null;
+    currentEmissora     = null;
+    tipoRegistro        = null;
     capturedImageBase64 = null;
   }
 </script>
